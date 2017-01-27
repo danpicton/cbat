@@ -1,2 +1,1 @@
-# cbat
-Clojure for the Brave and True Exercises
+Exercise answers from the book, Clojure for the Brave and True.
