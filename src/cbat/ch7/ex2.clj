@@ -3,26 +3,28 @@
 
 (apply require clojure.main/repl-requires)
 
-; NEXT:
-; Convert infix to function, do all processing there, ignore properly implementing process-triplet for now (just use as template).
 
+; Currently trying to work out how to exactly recur along the infix list - if there's more than one triplet, I need to recur
+; the correct "next" list depending on whether there was a match or not, previously.
 
-; Currently works if only one triplet (i.e. last-group? is true). Ultimately will be a function called by a parent macro, which calls infix for operators: / * + -
-; Destructuring (I think) needs to move to process-triplet function (apart from last-group?), otherwise recurring through inlist becomes convoluted as I think I'll need a separate output list. Not sure though. I think I may be better making infix a helper function and do all conditionals there so I have finer control of what I'm recurring.
 (defmacro infix [op inlist]
   (let [[i1 i2 & i3] inlist
-        last-group? (nil? (second i3))]
+        last-group? (nil? (second i3))]  
+
     (println i1 " " i2 " " i3 " " last-group?)
     (if last-group?
       ;"no more i3 - func call"
-      (process-triplet op i1 i2 (first i3))
+      (process-triplet op i1 i2 (first i3)) ; with the new comments below, this will need process-triplet logic too - can look at refactoring later
       "more i3 - recur infix with process triplet"
+      ;process-triplet condition needs to be here instead:
+      ;if there's a match, we want to recur the rearranged triplet in front of current i3 (i.e. in i1 pos for next call)
+      ;if no match, we need to return uneval'ed list of i1 i2 and then recur i3
+
      )
     ))
 
 
-
-; Initial plan was to use process-triplet to determine if i2 from infix matched op and if so, change to prefix. When non-match happens though, this tries to return invalid list; going to put conditional in infix for now and see if I can weave this in later on (saves duplication of condition).
+; This will need to be have its logic put directly into infix function.
 (defn process-triplet
     "Check if three args are an infix operation, if so return list in prefix notation."
       [test-op operand1 in-op operand2]
