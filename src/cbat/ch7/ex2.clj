@@ -11,20 +11,22 @@
   (let [[i1 i2 & i3] inlist
         last-group? (nil? (second i3))]  
 
-    (println i1 " " i2 " " i3 " " last-group?)
+    (println i1 " " i2 " " i3 " " last-group? " islist: " (list? i3))
     (if last-group?
       ;"no more i3 - func call"
-      (process-triplet op i1 i2 (first i3)) ; with the new comments below, this will need process-triplet logic too - can look at refactoring later
+      `(process-triplet ~op ~i1 ~i2 ~(first i3)) ; this seems to work, returning an unevaluated list (which is EXACTLY what ` does) regardless of which of its branches runs!! 
       "more i3 - recur infix with process triplet"
-      ;process-triplet condition needs to be here instead:
-      ;if there's a match, we want to recur the rearranged triplet in front of current i3 (i.e. in i1 pos for next call)
-      ;if no match, we need to return uneval'ed list of i1 i2 and then recur i3
-
+      ;(infix op (conj (process-triplet ~op ~i1 ~i2 ~(first i3)) (rest i3)))
+      
      )
     ))
 
+;; this is to emulate the final enclosing macro that will run infix for each operator - currently not evaluating anything returned :(
+(defmacro test-infix-call
+  [op inlist-top]
+  `(infix ~op ~inlist-top))
 
-; This will need to be have its logic put directly into infix function.
+; This works, but will need to be have its logic put directly into infix function.
 (defn process-triplet
     "Check if three args are an infix operation, if so return list in prefix notation."
       [test-op operand1 in-op operand2]
