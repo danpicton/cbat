@@ -15,9 +15,10 @@
     (if last-group?
       ;"no more i3 - func call"
       `(process-triplet ~op ~i1 ~i2 ~(first i3)) ; this seems to work, returning an unevaluated list (which is EXACTLY what ` does) regardless of which of its branches runs!! 
-      "more i3 - recur infix with process triplet"
-      ;(infix op (conj (process-triplet ~op ~i1 ~i2 ~(first i3)) (rest i3)))
-      
+      ;"more i3 - recur infix with process triplet"
+      ;`(infix ~op ~(into (process-triplet op i1 i2 (first i3)) (reverse (rest i3))))   ; this was initial line, retain 
+      `(infix ~op ~(conj (process-triplet op i1 i2 (first i3)) (rest i3)))  ; this recurs infinitely as it's always recurring into i3 position, which is tested as the stop condition
+      ;(println (conj (process-triplet op i1 i2 (first i3)) (rest i3)))
      )
     ))
 
@@ -26,7 +27,8 @@
   [op inlist-top]
   `(infix ~op ~inlist-top))
 
-; This works, but will need to be have its logic put directly into infix function.
+; This works, but I think it'll possible need the syntax quoting removed in the final version
+; there's definitely something I'm not fully grokking with macro expansion and read/eval.
 (defn process-triplet
     "Check if three args are an infix operation, if so return list in prefix notation."
       [test-op operand1 in-op operand2]
