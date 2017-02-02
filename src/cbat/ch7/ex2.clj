@@ -27,8 +27,9 @@
   [op inlist-top]
   `(infix ~op ~inlist-top))
 
-; This works, but I think it'll possible need the syntax quoting removed in the final version
-; there's definitely something I'm not fully grokking with macro expansion and read/eval.
+;; This works, but I think it'll possible need the syntax quoting removed in the final version
+;; there's definitely something I'm not fully grokking with macro expansion and read/eval.
+;; It may actually be the case that I have to move the conditions out to the infix macro as initially suspected
 (defn process-triplet
     "Check if three args are an infix operation, if so return list in prefix notation."
       [test-op operand1 in-op operand2]
