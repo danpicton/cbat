@@ -4,20 +4,40 @@
 (apply require clojure.main/repl-requires)
 
 
+;; Attempting to return back to an infix macro that creates a growing output list on each recur. I 
+;; had tried this previously, but had issues with the evaluation side of things.
+(defmacro infix 
+  [op out-list in-list]
+  (let [[i1 i2 & i3] in-list]
+    (println i1 " " i2 " " i3 " " (empty? i3) " islist: " (list? i3) " rest i3: " (rest i3))
+    (println (into out-list (reverse `(~i2 ~i1 ~(first i3)))))
+    `(if (empty? (rest ~i3))
+        (do (println "got to end cond" ) ~out-list)
+        (if (= ~i2 ~op)
+          ;(do nil ~(println "match"))
+          (infix ~op ~(into out-list ( list (first i3) i1 i2)) ~i3)
+          ))
+    ))
+  
+
 ; Currently trying to work out how to exactly recur along the infix list - if there's more than one triplet, I need to recur
 ; the correct "next" list depending on whether there was a match or not, previously.
 
-(defmacro infix [op inlist]
+(defmacro infix-no-outlist [op inlist]
   (let [[i1 i2 & i3] inlist
         last-group? (nil? (second i3))]  
 
-    (println i1 " " i2 " " i3 " " last-group? " islist: " (list? i3))
+    ;(println i1 " " i2 " " i3 " " last-group? " islist: " (list? i3))
     (if last-group?
       ;"no more i3 - func call"
       `(process-triplet ~op ~i1 ~i2 ~(first i3)) ; this seems to work, returning an unevaluated list (which is EXACTLY what ` does) regardless of which of its branches runs!! 
       ;"more i3 - recur infix with process triplet"
       ;`(infix ~op ~(into (process-triplet op i1 i2 (first i3)) (reverse (rest i3))))   ; this was initial line, retain 
-      `(infix ~op ~(conj (process-triplet op i1 i2 (first i3)) (rest i3)))  ; this recurs infinitely as it's always recurring into i3 position, which is tested as the stop condition
+      ;`(infix ~op ~(conj (process-triplet op i1 i2 (first i3)) (rest i3))) 
+      `(if (= ~op ~i2)
+         (do (println "gotmatch")(infix-no-outlist ~op ~(conj (process-triplet op i1 i2 (first i3)) (rest i3))))
+         (do (println "gothere") (~i1 ~i2 (infix-no-outlist ~op ~i3)))
+         ) 
       ;(println (conj (process-triplet op i1 i2 (first i3)) (rest i3)))
      )
     ))
