@@ -4,26 +4,11 @@
 (apply require clojure.main/repl-requires)
 
 
-;; Attempting to return back to an infix macro that creates a growing output list on each recur. I 
-;; had tried this previously, but had issues with the evaluation side of things.
-(defmacro infix 
-  [op out-list in-list]
-  (let [[i1 i2 & i3] in-list]
-    (println i1 " " i2 " " i3 " " (empty? i3) " islist: " (list? i3) " rest i3: " (rest i3))
-    (println (into out-list (reverse `(~i2 ~i1 ~(first i3)))))
-    `(if (empty? (rest ~i3))
-        (do (println "got to end cond" ) ~out-list)
-        (if (= ~i2 ~op)
-          ;(do nil ~(println "match"))
-          (infix ~op ~(into out-list ( list (first i3) i1 i2)) ~i3)
-          ))
-    ))
-  
 
 ; Currently trying to work out how to exactly recur along the infix list - if there's more than one triplet, I need to recur
 ; the correct "next" list depending on whether there was a match or not, previously.
 
-(defmacro infix-no-outlist [op inlist]
+(defmacro infix [op inlist]
   (let [[i1 i2 & i3] inlist
         last-group? (nil? (second i3))]  
 
@@ -35,18 +20,39 @@
         (~i1 ~i2 ~(first i3))
          )
       `(if (= ~op ~i2)
-         (do (println "gotmatch")(infix-no-outlist ~op ~(conj (rest i3) (process-triplet op i1 i2 (first i3)) )))
-         (do (println "gothere") (~i1 ~i2 (infix-no-outlist ~op ~i3)))
+         (do (println "gotmatch")(infix ~op ~(conj (rest i3) (process-triplet op i1 i2 (first i3)) )))
+         (do (println "gothere") (~i1 ~i2 (infix ~op ~i3)))
          ) 
       ;(println (conj (process-triplet op i1 i2 (first i3)) (rest i3)))
      )
     ))
 
 ;; this is to emulate the final enclosing macro that will run infix for each operator - currently not evaluating anything returned :(
+(defmacro test-infix-call-2
+  [inlist-top]
+  `(infix ~+ ~('infix '* 'inlist-top)))
+
 (defmacro test-infix-call
   [op inlist-top]
-  `(infix-no-outlist ~op ~inlist-top))
+  `(infix ~op ~inlist-top))
 
+
+
+;; The version below uses an out-list, but doesn't work. Had some previous success, but
+;; shelved in favour of no out-list at mo.
+(defmacro infix-out-list 
+  [op out-list in-list]
+  (let [[i1 i2 & i3] in-list]
+    (println i1 " " i2 " " i3 " " (empty? i3) " islist: " (list? i3) " rest i3: " (rest i3))
+    (println (into out-list (reverse `(~i2 ~i1 ~(first i3)))))
+    `(if (empty? (rest ~i3))
+        (do (println "got to end cond" ) ~out-list)
+        (if (= ~i2 ~op)
+          ;(do nil ~(println "match"))
+          (infix-out-list ~op ~(into out-list ( list (first i3) i1 i2)) ~i3)
+          ))
+    ))
+  
 ;; This works, but I think it'll possible need the syntax quoting removed in the final version
 ;; there's definitely something I'm not fully grokking with macro expansion and read/eval.
 ;; It may actually be the case that I have to move the conditions out to the infix macro as initially suspected
