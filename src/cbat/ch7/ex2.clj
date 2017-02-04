@@ -27,15 +27,20 @@
   (let [[i1 i2 & i3] inlist
         last-group? (nil? (second i3))]  
 
-    ;(println i1 " " i2 " " i3 " " last-group? " islist: " (list? i3))
+    (println i1 " " i2 " " i3 " " last-group? " islist: " (list? i3))
     (if last-group?
       ;"no more i3 - func call"
-      `(process-triplet ~op ~i1 ~i2 ~(first i3)) ; this seems to work, returning an unevaluated list (which is EXACTLY what ` does) regardless of which of its branches runs!! 
+      `(if (= ~op ~i2)
+        (~i2 ~i1 ~(first i3))
+        (~i1 ~i2 ~(first i3))
+         )
+      ;`(process-triplet ~op ~i1 ~i2 ~(first i3)) ; this seems to work, returning an unevaluated list (which is EXACTLY what ` does) regardless of which of its branches runs!! 
       ;"more i3 - recur infix with process triplet"
       ;`(infix ~op ~(into (process-triplet op i1 i2 (first i3)) (reverse (rest i3))))   ; this was initial line, retain 
       ;`(infix ~op ~(conj (process-triplet op i1 i2 (first i3)) (rest i3))) 
       `(if (= ~op ~i2)
-         (do (println "gotmatch")(infix-no-outlist ~op ~(conj (process-triplet op i1 i2 (first i3)) (rest i3))))
+         ;(do (println "gotmatch")(infix-no-outlist ~op ~(conj (process-triplet op i1 i2 (first i3)) (rest i3))))
+         (do (println "gotmatch")(infix-no-outlist ~op ~(conj (list (second i3) (second (rest i3))) (process-triplet op i1 i2 (first i3)) )))
          (do (println "gothere") (~i1 ~i2 (infix-no-outlist ~op ~i3)))
          ) 
       ;(println (conj (process-triplet op i1 i2 (first i3)) (rest i3)))
