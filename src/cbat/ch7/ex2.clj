@@ -12,20 +12,16 @@
   (let [[i1 i2 & i3] inlist
         last-group? (nil? (second i3))]  
 
-    (println i1 " " i2 " " i3 " " last-group? " islist: " (list? i3))
+    ;(println i1 " " i2 " " i3 " " last-group? " islist: " (list? i3))
     (if last-group?
       ;"no more i3 - func call"
       `(if (= ~op ~i2)
         (~i2 ~i1 ~(first i3))
-        (~i1 ~i2 ~(first i3))
-         )
+        (~i1 ~i2 ~(first i3)))
       `(if (= ~op ~i2)
-         (do (println "gotmatch")(infix ~op ~(conj (rest i3) (process-triplet op i1 i2 (first i3)) )))
-         (do (println "gothere") (~i1 ~i2 (infix ~op ~i3)))
-         ) 
-      ;(println (conj (process-triplet op i1 i2 (first i3)) (rest i3)))
-     )
-    ))
+         (infix ~op ~(conj (rest i3) (list i2 i1 (first i3)) ))
+         (~i1 ~i2 (infix ~op ~i3))
+         ))))
 
 ;; this is to emulate the final enclosing macro that will run infix for each operator - currently not evaluating anything returned :(
 (defmacro test-infix-call-2
@@ -52,10 +48,8 @@
           (infix-out-list ~op ~(into out-list ( list (first i3) i1 i2)) ~i3)
           ))
     ))
-  
-;; This works, but I think it'll possible need the syntax quoting removed in the final version
-;; there's definitely something I'm not fully grokking with macro expansion and read/eval.
-;; It may actually be the case that I have to move the conditions out to the infix macro as initially suspected
+
+;; Deprecated in favour of returning lists in-line
 (defn process-triplet
     "Check if three args are an infix operation, if so return list in prefix notation."
       [test-op operand1 in-op operand2]
