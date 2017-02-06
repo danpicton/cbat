@@ -3,7 +3,11 @@
 
 (apply require clojure.main/repl-requires)
 
-
+(defmacro infix-1 [op inlist]
+  (let [[i1 i2 i3] inlist]
+    `(if (= ~op ~i2)
+       (~i2 ~i1 ~i3)
+       (quote (~i1 ~i2 ~i3)))))
 
 ; Currently trying to work out how to exactly recur along the infix list - if there's more than one triplet, I need to recur
 ; the correct "next" list depending on whether there was a match or not, previously.
