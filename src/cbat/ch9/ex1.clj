@@ -17,7 +17,7 @@
 (defn search [url]
   (let [web-html (promise)]
     (future (if-let [html-string (slurp url)]
-              (deliver web-html html-string)))
+              (do (Thread/sleep 3000) (deliver web-html html-string))))
     (spit "out.html" @web-html)))
 
 
