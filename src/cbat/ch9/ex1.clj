@@ -1,6 +1,7 @@
 (ns cbat.ch9.ex1
   (:require [pl.danieljanus.tagsoup :as html])
   (:gen-class))
+(apply require clojure.main/repl-requires)
 
 (def owlurl "https://www.bing.com/search#q=owls")
 
@@ -12,6 +13,14 @@
   (let [search-html (future (slurp url))]
     (let [parsed-html (html/parse-string (str @search-html))]
       (println (:html :head parsed-html)))))
+
+(defn search [url]
+  (let [web-html (promise)]
+    (future (if-let [html-string (slurp url)]
+              (deliver web-html html-string)))
+    (spit "out.html" @web-html)))
+
+
 
 (defn get-pretend []
   (html/parse-string pretend-webpage))
