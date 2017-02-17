@@ -4,22 +4,23 @@
 (apply require clojure.main/repl-requires)
 
 (def owlurl "https://www.bing.com/search#q=owls")
+(def user-agent "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.22 (KHTML, like Gecko) Chrome/25.0.1364.172")
 
-(def pretend-webpage "<html><head><h1>Page Header</h1></head><body>Meow</body></html>")
 
-;><li class="b_algo"><h2><a href="http://www.owlpages.com/owls/"
+(defn get-google-url [search-term]
+  (str "https://www.google.com/search?q=" search-term))
+(defn get-bing-url [search-term]
+  (str "https://www.bing.com/search#q=" search-term))
 
-(defn get-search-result [url]
-  (let [search-html (future (slurp url))]
-    (let [parsed-html (html/parse-string (str @search-html))]
-      (println (:html :head parsed-html)))))
-
-(defn search [url]
+(defn search [search-term]
   (let [web-html (promise)]
-    (future (if-let [html-string (slurp url)]
-              (do (Thread/sleep 3000) (deliver web-html html-string))))
-    (spit "out.html" @web-html)))
-
+;    (doseq [url [get-google-url get-bing-url]]
+    (doseq [url [get-bing-url]]
+      (println "url: " url " type: " (type url))
+      (future (if-let [html-string (slurp url)]
+              (deliver web-html html-string))))
+    (spit "out.html" (deref web-html 5000 :timeout))))
+;    @web-html))
 
 
 (defn get-pretend []
@@ -32,5 +33,4 @@
       (recur kw cn)
     )))
 
-;[:html {} [:head {}] [:body {} [:h1 {} "Page Header"]] [:body {} "Meow"]]
 
