@@ -14,13 +14,10 @@
 
 (defn search [search-term]
   (let [web-html (promise)]
-;    (doseq [url [get-google-url get-bing-url]]
-    (doseq [url [get-bing-url]]
-      (println "url: " url " type: " (type url))
-      (future (if-let [html-string (slurp url)]
+    (doseq [url [get-google-url get-bing-url]]
+      (future (if-let [html-string (slurp (url search-term))]
               (deliver web-html html-string))))
-    (spit "out.html" (deref web-html 5000 :timeout))))
-;    @web-html))
+    @web-html))
 
 
 (defn get-pretend []
