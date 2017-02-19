@@ -14,8 +14,8 @@
   (str "https://uk.search.yahoo.com/search?p=" search-term))
 
 (def search-engine-list {:google get-google-url
-                     :yahoo get-yahoo-url
-                     :bing get-bing-url})
+                         :yahoo get-yahoo-url
+                         :bing get-bing-url})
 
 (defn open-connection[url]
   (doto (.openConnection url)
@@ -36,12 +36,13 @@
 
 ;; exercise 2
 (defn get-search-urls [& e]
-  (vals (select-keys search-engine-list  (apply vector e) )))
+  (map #(% search-engine-list) e))
 
 (defn search-specific [search-term & engines]
   (let [web-html (promise)]
-    (doseq [url [(get-search-urls engines)]]
+    (doseq [url (apply get-search-urls engines)]
+ ;     (println "url: " url)
       (future (if-let [html-string (java.net.URL. (url search-term))]
               (deliver web-html (get-response html-string)))))
-;    (spit "search.out" (deref web-html 5000 :timeout))))
-    (deref web-html 5000 :timeout)))
+    (spit "search.out" (deref web-html 5000 :timeout))))
+;    (deref web-html 5000 :timeout)))
