@@ -13,6 +13,10 @@
 (defn get-yahoo-url [search-term]
   (str "https://uk.search.yahoo.com/search?p=" search-term))
 
+(def search-engine-list {:google get-google-url
+                     :yahoo get-yahoo-url
+                     :bing get-bing-url})
+
 (defn open-connection[url]
   (doto (.openConnection url)
     (.setRequestProperty "User-Agent" user-agent)))
@@ -21,12 +25,23 @@
   (let [conn (open-connection url)]
     (slurp (.getInputStream conn))))
 
+
 (defn search [search-term]
   (let [web-html (promise)]
     (doseq [url [get-google-url get-yahoo-url]]
       (future (if-let [html-string (java.net.URL. (url search-term))]
               (deliver web-html (get-response html-string)))))
-    (spit "search.out" (deref web-html 5000 :timeout))))
-    ;(deref web-html 5000 :timeout)))
+;    (spit "search.out" (deref web-html 5000 :timeout))))
+    (deref web-html 5000 :timeout)))
 
+;; exercise 2
+(defn get-search-urls [& e]
+  (vals (select-keys search-engine-list  (apply vector e) )))
 
+(defn search-specific [search-term & engines]
+  (let [web-html (promise)]
+    (doseq [url [(get-search-urls engines)]]
+      (future (if-let [html-string (java.net.URL. (url search-term))]
+              (deliver web-html (get-response html-string)))))
+;    (spit "search.out" (deref web-html 5000 :timeout))))
+    (deref web-html 5000 :timeout)))
