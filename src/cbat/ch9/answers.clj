@@ -1,4 +1,4 @@
-(ns cbat.ch9.ex1
+(ns cbat.ch9.answers
   (:import [java.net URL URLEncoder])
   (:require [pl.danieljanus.tagsoup :as html])
   (:gen-class))
