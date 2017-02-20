@@ -17,6 +17,8 @@
                          :yahoo get-yahoo-url
                          :bing get-bing-url})
 
+;; note - Bing was very inconsistent in returning data, so maybe employs some functionality to prevent crawling of results
+
 (defn open-connection[url]
   (doto (.openConnection url)
     (.setRequestProperty "User-Agent" user-agent)))
@@ -25,8 +27,9 @@
   (let [conn (open-connection url)]
     (slurp (.getInputStream conn))))
 
-
-(defn search [search-term]
+;; exercise 1
+(defn search
+  "Returns HTML string from quickest Google and Yahoo search for search-term."   [search-term]
   (let [web-html (promise)]
     (doseq [url [get-google-url get-yahoo-url]]
       (future (if-let [html-string (java.net.URL. (url search-term))]
@@ -35,14 +38,32 @@
     (deref web-html 5000 :timeout)))
 
 ;; exercise 2
-(defn get-search-urls [& e]
+(defn get-search-urls
+  "Returns lazy sequence of partial search engine URLs (prefixes), based on provided e (:google, :yahoo and/or :bing)."
+  [& e]
   (map #(% search-engine-list) e))
 
-(defn search-specific [search-term & engines]
+(defn search-specific 
+  "Returns HTML string from quickest search for search-term on chosen engines (:google, :yahoo and/or :bing)."
+  [search-term & engines]
   (let [web-html (promise)]
     (doseq [url (apply get-search-urls engines)]
- ;     (println "url: " url)
       (future (if-let [html-string (java.net.URL. (url search-term))]
               (deliver web-html (get-response html-string)))))
-    (spit "search.out" (deref web-html 5000 :timeout))))
-;    (deref web-html 5000 :timeout)))
+;    (spit "search.out" (deref web-html 5000 :timeout))))
+    (deref web-html 5000 :timeout)))
+
+;; exercise 3 - only works on Google results due to differences in search results (removing the filtered-uris binding and returning just uris returns data for both engines
+(defn get-results-urls 
+  "(experimental) Returns lazy sequence of URLs from quickest search for search on chosen engines (:google, :yahoo and/or :bing)."
+  [search-term & engines]
+  (let [results-html (apply search-specific search-term engines)
+        matches (re-seq #"href=\"([^\" ]*)\"" results-html)
+        uris (map second matches)
+        filtered-uris (filter #(re-find #"http(?s)://www" %) uris)]
+  filtered-uris))
+
+;; Last exercise leaned heavily on following solution - used mainly for
+;; regex stuff, but chose to imitate the let bindings as it looked much
+;; clearer than a bunch of nested functions:
+;; https://github.com/mathias/clojure-for-the-brave-and-true-notes/blob/master/src/clojure_for_the_brave_and_true/core.clj
