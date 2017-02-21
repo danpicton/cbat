@@ -1,4 +1,4 @@
-(ns cbat.ch7.ex2
+(ns cbat.ch7.answers
   (:gen-class))
 
 (defmacro infix [op inlist]

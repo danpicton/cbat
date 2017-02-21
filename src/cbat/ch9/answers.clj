@@ -1,8 +1,7 @@
 (ns cbat.ch9.answers
   (:import [java.net URL URLEncoder])
-  (:require [pl.danieljanus.tagsoup :as html])
   (:gen-class))
-(apply require clojure.main/repl-requires)
+;(apply require clojure.main/repl-requires)
 
 (def user-agent "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2")
 

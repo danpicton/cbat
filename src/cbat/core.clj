@@ -1,7 +1,7 @@
 (ns cbat.core)
 
-(require 'cbat.ch7.ex2)
-(refer   'cbat.ch7.ex2)
+(require 'cbat.ch7.answers 'cbat.ch9.answers)
+(refer   'cbat.ch7.answers 'cbat.ch9.answers)
 
 (defn foo
   "I don't do a whole lot."
