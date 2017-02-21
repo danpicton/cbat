@@ -1,7 +1,6 @@
 (ns cbat.ch9.answers
   (:import [java.net URL URLEncoder])
   (:gen-class))
-;(apply require clojure.main/repl-requires)
 
 (def user-agent "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2")
 
@@ -66,3 +65,9 @@
 ;; regex stuff, but chose to imitate the let bindings as it looked much
 ;; clearer than a bunch of nested functions:
 ;; https://github.com/mathias/clojure-for-the-brave-and-true-notes/blob/master/src/clojure_for_the_brave_and_true/core.clj
+
+
+(defn foo
+  "I don't do a whole lot."
+  [x]
+  (println x "Hello, World!"))
