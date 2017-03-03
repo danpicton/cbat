@@ -1,6 +1,9 @@
 (ns cbat.core)
 
-(require 'cbat.ch7.answers 'cbat.ch9.answers)
+(require 'cbat.ch7.answers 
+         'cbat.ch9.answers
+         'cbat.ch10.answers
+         )
 
 (defn foo
   "I don't do a whole lot."
