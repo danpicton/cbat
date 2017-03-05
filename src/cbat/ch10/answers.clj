@@ -24,11 +24,11 @@
 (defn get-quote-list 
   "Retrieves parameterised number of quotes from 'http://www.braveclojure.com/random-quote' and returns the word count across all quotes"
   [quote-count]
-  (let [atom-list (promise)]
+  (let [atom-list (promise)
+        quote-list (atom())]
     (doseq [a (range 0 quote-count)]
-      (future 
-        (let [curr-quote (slurp "http://www.braveclojure.com/random-quote")]
-          (swap! quote-list conj curr-quote))))
+      (let [curr-quote (future (slurp "http://www.braveclojure.com/random-quote"))]
+        (swap! quote-list conj @curr-quote)))
     @quote-list))
 
 (defn get-lazy-word-seq
