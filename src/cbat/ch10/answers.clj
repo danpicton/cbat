@@ -55,5 +55,7 @@
 
 (defn wound
   [character pow]
-  ;(dosync (alter character (if (<= 0 (- (:hp character) pow) update-in [:hp] 0 ) (- (:hp character) pow)))))
-  (dosync (alter character (if (<= 0 (- (:hp character) pow)) {:status "alive"} {:status "dead"}))))
+  (dosync 
+    (let [damage (- (:hp @character) pow)
+          wound-hp (max 0 damage)]
+      (alter character assoc-in [:hp] wound-hp))))
