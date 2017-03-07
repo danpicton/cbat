@@ -47,7 +47,7 @@
   {:name name
    :hp 40
    :max-hp 40
-   :inventory items}
+   :inventory (vec items)}
   )
 
 (def char-one (ref (create-char "Thandor")))
@@ -65,8 +65,10 @@
   "Healer heals healee. Returns healed character."
   [healer healee]
   (dosync
-    ;(alter healer assoc-in [:inventory] (disj (:inventory @healer) "Healing potion"))
-    (alter healer update-in [:inventory] disj "Healing potion")
+    ;(alter healer assoc-in [:inventory] disj "Healing potion")
+    (alter healer merge-with clojure.set/difference @healer (:inventory "Healing potion"))
+    ;(alter healer update-in [:inventory] disj ("Healing potion"))
     (alter healee assoc-in [:hp] (:max-hp @healee))
     ;(alter healer assoc-in [:inventory] (conj (:inventory @healer) "Empty bottle"))))
-    (alter healer update-in [:inventory] conj "Empty bottle")))
+    ;(alter healer merge-with conj @healer {:inventory ("Empty bottle")})
+    ))
