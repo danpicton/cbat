@@ -51,11 +51,22 @@
   )
 
 (def char-one (ref (create-char "Thandor")))
-(def char-two (ref (create-char "Mork" "Healing potion")))
+(def char-two (ref (create-char "Mork" "Healing potion" "Some other item")))
 
 (defn wound
+  "Wounds target character for specified pow. Returns wounded character."
   [character pow]
   (dosync 
     (let [damage (- (:hp @character) pow)
           wound-hp (max 0 damage)]
       (alter character assoc-in [:hp] wound-hp))))
+
+(defn heal
+  "Healer heals healee. Returns healed character."
+  [healer healee]
+  (dosync
+    ;(alter healer assoc-in [:inventory] (disj (:inventory @healer) "Healing potion"))
+    (alter healer update-in [:inventory] disj "Healing potion")
+    (alter healee assoc-in [:hp] (:max-hp @healee))
+    ;(alter healer assoc-in [:inventory] (conj (:inventory @healer) "Empty bottle"))))
+    (alter healer update-in [:inventory] conj "Empty bottle")))
