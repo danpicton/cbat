@@ -47,11 +47,12 @@
   {:name name
    :hp 40
    :max-hp 40
-   :inventory (vec items)}
+   :inventory items}
   )
 
+;; Create character refs
 (def char-one (ref (create-char "Thandor")))
-(def char-two (ref (create-char "Mork" "Healing potion" "Some other item")))
+(def char-two (ref (create-char "Mork" "Healing potion" "Some other item" "Healing potion")))
 
 (defn wound
   "Wounds target character for specified pow. Returns wounded character."
@@ -61,14 +62,24 @@
           wound-hp (max 0 damage)]
       (alter character assoc-in [:hp] wound-hp))))
 
+
+;; found in comment on:
+;;  https://programming-puzzler.blogspot.co.uk/2010/07/translating-code-from-python-and-scheme.html
+(defn remove-first 
+  "Returns Cons of collection removing first instance of i."
+  [i [first & rest]]
+(cond
+(nil? first) ()
+(= i first) rest
+:else (cons first (remove-first i rest))))
+
+
 (defn heal
   "Healer heals healee. Returns healed character."
   [healer healee]
-  (dosync
-    ;(alter healer assoc-in [:inventory] disj "Healing potion")
-    (alter healer merge-with clojure.set/difference @healer (:inventory "Healing potion"))
-    ;(alter healer update-in [:inventory] disj ("Healing potion"))
-    (alter healee assoc-in [:hp] (:max-hp @healee))
-    ;(alter healer assoc-in [:inventory] (conj (:inventory @healer) "Empty bottle"))))
-    ;(alter healer merge-with conj @healer {:inventory ("Empty bottle")})
-    ))
+  (if (empty? (filter #(= "Healing potion" %) (:inventory @char-two)))
+    (println "Nothing to heal with.")
+    (dosync
+      (alter healer assoc-in [:inventory] (remove-first "Healing potion" (:inventory @char-two)))
+      (alter healee assoc-in [:hp] (:max-hp @healee))
+      (alter healer assoc-in [:inventory] (conj (:inventory @healer) "Empty bottle")))))
