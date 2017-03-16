@@ -1,8 +1,9 @@
 (ns cbat.core)
 
-(require 'cbat.ch7.answers 
-         'cbat.ch9.answers
-         'cbat.ch10.answers
+(require '[cbat.ch7.answers :as ch7]
+         '[cbat.ch9.answers :as ch9]
+         '[cbat.ch10.answers :as ch10]
+         '[cbat.ch13.answers :as ch13]
          )
 
 (defn foo
